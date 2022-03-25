@@ -38,3 +38,10 @@ If overlap position outside of FOV, program will besed on setting range to predi
 
 req4: width_analysis
 Highlight unusual width of PS# detectron_ps
+
+
+03/21: 
+To do: 
+1,Delete overlap result
+2, Auto find ps based on it detection result #frame[np.where(mask_layers[0].mask == True)]
+3, Create polygon for training

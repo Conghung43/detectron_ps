@@ -74,8 +74,15 @@ class VisualizationDemo(object):
                 frame_visualizer = Visualizer(frame, self.metadata)
                 mask_layers = frame_visualizer._convert_masks(masks)
                 # Converts Matplotlib RGB format to OpenCV BGR format
+                frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                objects_collection = []
                 for mask_layer in mask_layers:
+                    if len(objects_collection) == 0:
+                        objects_collection = frame[np.where(mask_layer.mask == True)]
+                    else:
+                        objects_collection = np.concatenate((objects_collection , frame[np.where(mask_layer.mask == True)]), axis = 0)
                     print(mask_layer.area())
+                print(np.mean(objects_collection))
                 vis_frame = cv2.cvtColor(vis_frame.get_image(), cv2.COLOR_RGB2BGR)
                 print('mask_layers =', len(mask_layers))
                 object_polygon_list =[]
