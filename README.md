@@ -43,5 +43,7 @@ Highlight unusual width of PS# detectron_ps
 03/21: 
 To do: 
 1,Delete overlap result
-2, Auto find ps based on it detection result #frame[np.where(mask_layers[0].mask == True)]
+2, (auto labeling)Auto find ps based on it detection result #frame[np.where(mask_layers[0].mask == True)]
+find line based on hsv color
+using hsv in teest function
 3, Create polygon for training
