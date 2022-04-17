@@ -1,5 +1,3 @@
-from tkinter.messagebox import NO
-import cv2
 import torch
 from detectron2.data import MetadataCatalog, DatasetCatalog
 from detectron2.engine.defaults import DefaultPredictor
@@ -16,6 +14,7 @@ from display import draw_polygon
 from auto_labeling import polygons_adjustment
 import test_function
 from auto_labeling import generate_json
+import cv2
 class VisualizationDemo(object):
     def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False):
         self.metadata = MetadataCatalog.get(
@@ -32,67 +31,6 @@ class VisualizationDemo(object):
         # self.test()
     def fake_func(self):
         return {}
-    def test(self):
-        path = f"/home/kai/Documents/DATASET/minghong/ps_data/image_0328/IMG_1621/"
-        json_data = {}
-        video = cv2.VideoCapture(f'/home/kai/Documents/DATASET/minghong/ps_data/video/IMG_1621.MOV')
-        jump_range = 10
-        frame_count = 0
-        while True:
-            # frame = cv2.imread('dummy_data/objects_collection.jpg')
-            ret, frame = video.read()
-            frame_count += 1
-            if not ret:
-                break
-            if frame_count % jump_range != 0:
-                continue
-            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-            h,w,_ = frame.shape
-            frame = frame[int(h*5/16):int(h*13/16), int(w/2):w]
-            frame_visualizer = Visualizer(frame, self.metadata)
-            masks = test_function.create_masks(frame)
-            mask_layers = frame_visualizer._convert_masks(masks)
-            print('mask_layers =', len(mask_layers))
-            object_polygon_list =[]
-            
-            for object_polygon in mask_layers:
-                len_polygon = len(object_polygon.polygons)
-                polygon_reshape = None
-                if len_polygon == 1:
-                    polygon_reshape = np.reshape(object_polygon.polygons[0],(-1,2)).astype(int)
-                    
-                    #calculate volume of ps
-                    polygon_reshape = polygons_adjustment.change_polygon_point(polygon_reshape)
-                    # object_polygon_list.append(polygon_reshape)
-                    # mask_index = np.where(object_polygon.mask == 1)
-                    # len_mask_index = len(mask_index[0])
-                    # lenth_mask_index = mask_index[1].max() - mask_index[1].min()
-                    # print(len_mask_index, lenth_mask_index, len_mask_index/lenth_mask_index)
-                elif len_polygon > 1:
-                    polygon_reshape = polygons_adjustment.get_main_polygon(object_polygon.polygons).reshape(-1, 2)
-                    polygon_reshape = polygons_adjustment.change_polygon_point(polygon_reshape)
-                    # object_polygon_list.append(polygon_reshape)
-                else:
-                    continue
-                polygon_reshape = polygons_adjustment.get_sorter_polygon(polygon_reshape)
-                if polygon_reshape is None:
-                    continue
-                object_polygon_list.append(np.array(polygon_reshape))
-            sorted_object_polygon = object_polygon_sort.main(object_polygon_list)
-            # f =  open('dummy_data/auto_detect_polygon.npy', 'wb') 
-            # np.save(f, [sorted_object_polygon[4]])
-            # f.close()
-            # for object_polygon in sorted_object_polygon:
-            # draw_polygon.main(sorted_object_polygon, frame)
-            key, value = generate_json.save_image_gen_json(
-                frame, 
-                sorted_object_polygon,
-                path)
-            if value is None:
-                continue
-            json_data[key] = value
-        generate_json.write_json(json_data,path)
-
 
     def bbox2center(self, bbox):
         l, t, r, b = bbox
@@ -106,8 +44,8 @@ class VisualizationDemo(object):
         
         #Read cam, video
         video_name = 'IMG_1621'
-        path = f"/home/kai/Documents/DATASET/minghong/ps_data/{video_name}/"
-        cap = cv2.VideoCapture(f'/home/kai/Documents/DATASET/minghong/ps_data/video/{video_name}.MOV')
+        path = f"/home/kai/Documents/DATASET/mh/ps/{video_name}/"
+        cap = cv2.VideoCapture(f'/home/kai/Documents/DATASET/mh/ps/video/{video_name}.MOV')
         config = read_config.Config([cap.get(4), cap.get(3)])
         # video_export = cv2.VideoWriter(f"video_log/video_{time.time()}.mp4", 0x7634706d, 10, (540,960))#(int(cap.get(4)),int(cap.get(3))
         frame_count = 0
